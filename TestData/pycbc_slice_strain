@@ -1,0 +1,139 @@
+#!/usr/bin/env python
+import argparse
+import numpy as np
+from pycbc import DYN_RANGE_FAC
+import pycbc.strain
+from pycbc.types import TimeSeries
+import h5py
+from BnsLib.data import whiten
+from BnsLib.types import NamedPSDCache
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--slice-size', type=float, required=True,
+                        help="""The duration of each slice in seconds.""")
+    parser.add_argument('--step-size', type=float, required=True,
+                        help="""The time by which the start position
+                                of each slice is shifted.""")
+    parser.add_argument('--detector', nargs='+',
+                        help="""The detectors to consider.""")
+    parser.add_argument('--samples-per-file', type=int,
+                        help="""How many files should be stored in 
+                                each file.""")
+    parser.add_argument('--first-slice-position', type=float,
+                        help="""The time at which the first slice should
+                                taken. If not set, the program will start
+                                slicing at the start of the provided
+                                segment. (in seconds)""")
+    parser.add_argument('--output', type=str, default='sliced-{start}-{nsamples}.hdf',
+                        help="""Path to the location where the output 
+                                is stored. Names can contain macros for 
+                                the start sample {start}, the last sample 
+                                {last}, the total number of samples 
+                                {nsamples}, the gps-start-time {gpsStart}
+                                and the gps-end-time {gpsEnd}.""")
+    parser.add_argument('--force', action='store_true',
+                        help="Force to overwrite files.")
+    parser.add_argument('--low-frequency-cutoff', type=float, required=True,
+                        help="""The low-frequency cutoff used when generating
+                                fake strain.""")
+    parser.add_argument('--pad-zeros-start', type=float, default=4.,
+                        help="Pad the beginning of the data with zeros. (in seconds) Default: 4")
+    parser.add_argument('--pad-zeros-end', type=float, default=4.,
+                        help="Pad the end of the data with zeros. (in seconds) Default: 4")
+    parser.add_argument('--whiten', action='store_true',
+                        help="Whiten the sliced data.")
+    
+    pycbc.strain.insert_strain_option_group_multi_ifo(parser)
+    
+    opts = parser.parse_args()
+    
+    #Get strain
+    dets = opts.detector
+    strain = pycbc.strain.from_cli_multi_ifos(opts, dets)
+    
+    offset = {}
+    if opts.first_slice_position is None:
+        offset = {ifo: 0 for ifo in dets}
+        opts.first_slice_position = max([strain[ifo].start_time])
+    else:
+        for ifo in dets:
+            delta = opts.first_slice_position - strain[ifo].start_time
+            offset[ifo] = int(delta / strain[ifo].delta_t)
+    
+    assert strain[ifo].start_time <= opts.first_slice_position
+    
+    #Calculate the number of slices
+    nsamps = {}
+    slice_size = {}
+    step_size = {}
+    for ifo in dets:
+        slice_size[ifo] = opts.slice_size // strain[ifo].delta_t
+        step_size[ifo] = opts.step_size // strain[ifo].delta_t
+        nsamps[ifo] = (len(strain[ifo]) - offset[ifo] - slice_size[ifo]) // step_size[ifo]
+    
+    nsamps = int(min(nsamps.values()))
+    
+    #Calculate the number of files
+    if opts.samples_per_file is None:
+        opts.samples_per_file = nsamps
+    nfiles = int(np.ceil(nsamps / opts.samples_per_file))
+    
+    #Create files
+    start = 0
+    curr_nsamp = min(nsamps, opts.samples_per_file)
+    last = int(curr_nsamp)
+    if opts.whiten:
+        psd_cache = {}
+        for ifo in dets:
+            if opts.fake_strain is not None and ifo in opts.fake_strain:
+                psd_cache[ifo] = NamedPSDCache(psd_names=opts.fake_strain[ifo])
+            else:
+                psd_cache[ifo] = NamedPSDCache(psd_names='aLIGOZeroDetHighPower')
+    for i in range(nfiles):
+        gpsStart = min([opts.gps_start_time[ifo] for ifo in dets])
+        gpsEnd = min([opts.gps_end_time[ifo] for ifo in dets])
+        fn = opts.output.format(start=start, last=last,
+                                nsamples=curr_nsamp,
+                                gpsStart=gpsStart,
+                                gpsEnd=gpsEnd)
+        mode = 'w' if opts.force else 'x'
+        with h5py.File(fn, mode) as fp:
+            for ifo in dets:
+                ifo_gr = fp.create_group(ifo)
+                #This adjustment is made as 4s in the beginning and end
+                #are discarded from each slice due to corruption
+                #data_size = slice_size[ifo] - 2 * int(4 / strain[ifo].delta_t)
+                data_size = slice_size[ifo]
+                
+                curr_ds = ifo_gr.create_dataset('data',
+                                                (curr_nsamp,
+                                                 data_size))
+                ifo_gr.attrs['delta_t'] = strain[ifo].delta_t
+                ifo_gr.attrs['epoch'] = float(strain[ifo].start_time)
+                for j, sidx in enumerate(range(start, last)):
+                    start_idx = sidx * step_size[ifo] + offset[ifo]
+                    data = strain[ifo][int(start_idx):int(start_idx+slice_size[ifo])]
+                    if opts.whiten:
+                        #Pad with zeros
+                        prep_zeros = int(opts.pad_zeros_start // data.delta_t)
+                        app_zeros = int(opts.pad_zeros_end // data.delta_t)
+                        zeros = int(prep_zeros + len(data) + app_zeros)
+                        tmp = TimeSeries(np.zeros(zeros),
+                                        delta_t=data.delta_t,
+                                        epoch=data.start_time-opts.pad_zeros_start)
+                        tmp[prep_zeros:prep_zeros+len(data)] = data
+                        data = tmp
+                        #Whitening each slice
+                        data = whiten(data,
+                                    psd=psd_cache[ifo].get_from_timeseries(data,
+                                                                            max(0, opts.low_frequency_cutoff-1)),
+                                    low_freq_cutoff=opts.low_frequency_cutoff)
+                    curr_ds[j,:] = np.array(data)
+        start = last
+        end = int(min(nsamps, start + opts.samples_per_file))
+        curr_nsamp = int(end - last)
+    return
+
+if __name__== "__main__":
+    main()
