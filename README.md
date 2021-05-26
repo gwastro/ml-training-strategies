@@ -211,5 +211,5 @@ The scripts will create 3 files each. Each of them is a HDF5 file. The first fil
 Put acknowledgments here.
 
 ## References
-<a name="publication"></a>`[1]`: [Training Strategies for Deep Learning Gravitational-Wave Searches](https://arxiv.org)
+<a name="publication"></a>`[1]`: [Training Strategies for Deep Learning Gravitational-Wave Searches](https://arxiv.org)<br>
 <a name="bnslib"></a>`[2]`: [BnsLib](https://github.com/MarlinSchaefer/BnsLib)
