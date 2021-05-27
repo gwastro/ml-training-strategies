@@ -200,6 +200,43 @@ The scripts will create 3 files each. Each of them is a HDF5 file. The first fil
 | sens-vol     | The volume to which the search is sensitive                     |
 | sens-vol-err | The Monte-Carlo error of the volume                             |
 
+## Matched filter
+
+To construct the matched filter comparison a template bank is required. We include the bank file used in our analysis as `MatchedFilter/template_bank.hdf`. You can construct your own by running `./MatchedFilter/gen_template_bank.sh`.
+
+To run the search you can call the script `MatchedFilter/run_search.sh`. The script expects two positional arguments. The first must be the `<start-time>-80`, where `<start-time>` is the time at which analysis should begin. The second must be `<end-time>+16`, where `<end-time>` is the time at which to stop the analysis. Due to memory constraints it is infeasible to analyze the entire month of data at once. We chose a block size of 4096 seconds and thus called the script 633 times. Note that the analysis block must be larger then 512 seconds. To analyze the segment from 0 to 4096 seconds the call to the script would be
+```
+./MatchedFilter/run_search.sh -80 4112
+```
+which would output the file `MatchedFilter/output/-80-4112-out.hdf`.
+Note, that the script expects the injection file to be located at `TestData/injections.hdf` and to be called from the root directory. Adjust the paths as required.
+
+The triggers returned by the above script are not yet in a format that can be read by `evaluate_test_data.py`. To get them into a correct format, remove triggers below certain SNRs and outside a given analysis time use the script `MatchedFilter/collect_triggers.py`. Since the script `MatchedFilter/run_search.sh` is expected to be called more than once multiple output files are expected to exists and, therefore, the script `MatchedFilter/collect_triggers.py` loads triggers from all files in a specified directory that match a name pattern. To collect the triggers from the above example matched filter analysis use
+```
+./MatchedFilter/collect_triggers.py \
+--dir MatchedFilter/output \
+--output MatchedFilter/triggers.hdf \
+--file-name {start}-{stop}-out.hdf \
+--start-time 0 \
+--end-time 2592000 \
+--threshold 5 \
+--verbose
+```
+Notice that we throw away any triggers with SNR < 5. This reduces file sizes and the required analysis time substantially.
+
+The resulting trigger file can finally be analyzed using `evaluate_test_data.py`. To use the trigger-file just created you need to set the option `--load-triggers` and set the duration of the data analyzed in total. An example call would be
+```
+./evaluate_test_data.py \
+--injection-file TestData/injections.hdf \
+--load-triggers MatchedFilter/triggers.hdf \
+--duration 2592000 \
+--event-file-name MatchedFilter/events.hdf \
+--stats-file-name MatchedFilter/stats.hdf \
+--verbose
+```
+Note, that the injection file may only contain injections within the time analyzed by the matched filter search. If this is not the case, the injections have to be cropped manually. Also, the duration must match the time of the data which was analyzed. Otherwise, the resulting false-alarm rates may be far off.
+The formats of the files are explained above and can be directly compared to the output of the machine learning analysis.
+
 ## Requirements
 
 ### Tensorflow
