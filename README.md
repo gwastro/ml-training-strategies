@@ -4,7 +4,7 @@ Marlin B. Schäfer<sup>1, 2</sup>, Ondřej Zelenka<sup>3, 4</sup>, Alexander H. 
 
 <sub>1. [Albert-Einstein-Institut, Max-Planck-Institut for Gravitationsphysik, D-30167 Hannover, Germany](http://www.aei.mpg.de/obs-rel-cos)</sub><br>
 <sub>2. Leibniz Universität Hannover, D-30167 Hannover, Germany</sub><br>
-<sub>3. Friedrich-Schiller-Universität Jena, D-07743 Jena, Germany</sub>
+<sub>3. Friedrich-Schiller-Universität Jena, D-07743 Jena, Germany</sub><br>
 <sub>4. Michael Stifel Center Jena, D-07743 Jena, Germany</sub>
 
 ## Introduction
@@ -96,6 +96,21 @@ The above call to the script will train a single instance of the network describ
 To reproduce the results shown in [`[1]`](#publication) this script needs to be called 50 times for each of the 15 available run-keys.
 
 ### 2.2 PyTorch
+
+To train a specific network call the script `Pytorch/train.py`. Output directories are set on lines 24 and 25 of the script, other parameters are set in the file `Pytorch/pars.py`. The script is set up to start a series of runs as in [`[1]`](#publication). The number of runs to be launched is specified on line 24 of `Pytorch/pars.py` and the index of the first run can be supplied as a command-line argument when launching `Pytorch/train.py`; if not supplied, it defaults to zero. To launch a set of 50 runs, one can either set `runs_number = 50` in `Pytorch/pars.py` and run:
+```
+python train.py
+```
+a single time to produce a series of non-parallelized runs indexed from 0 to 49 (optionally `python train.py $i` to start the indexing at `$i`), or set `runs_number = 1` and run:
+```
+python train.py 0
+python train.py 1
+...
+python train.py 49
+```
+This way, the experiment can be parallelized over multiple GPUs.
+
+The training strategy is specified using the file `Pytorch/scheduler_pars.py`. By default, the `fixed_low` strategy is used.
 
 ## 3 Generate test data
 
