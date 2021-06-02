@@ -1,10 +1,11 @@
 # Training Strategies for Deep Learning Gravitational-Wave Searches
 
-Marlin B. Schäfer<sup>1, 2</sup>, Ondřej Zelenka<sup>3</sup>, Alexander H. Nitz<sup>1, 2</sup>, Frank Ohme<sup>1, 2</sup>, Bernd Brügmann<sup>3</sup>
+Marlin B. Schäfer<sup>1, 2</sup>, Ondřej Zelenka<sup>3, 4</sup>, Alexander H. Nitz<sup>1, 2</sup>, Frank Ohme<sup>1, 2</sup>, Bernd Brügmann<sup>3, 4</sup>
 
 <sub>1. [Albert-Einstein-Institut, Max-Planck-Institut for Gravitationsphysik, D-30167 Hannover, Germany](http://www.aei.mpg.de/obs-rel-cos)</sub><br>
 <sub>2. Leibniz Universität Hannover, D-30167 Hannover, Germany</sub><br>
 <sub>3. Friedrich-Schiller-Universität Jena, D-07743 Jena, Germany</sub>
+<sub>4. Michael Stifel Center Jena, D-07743 Jena, Germany</sub>
 
 ## Introduction
 
