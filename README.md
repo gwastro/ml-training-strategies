@@ -101,16 +101,32 @@ To train a specific network call the script `Pytorch/train.py`. Output directori
 ```
 python train.py
 ```
-a single time to produce a series of non-parallelized runs indexed from 0 to 49 (optionally `python train.py $i` to start the indexing at `$i`), or set `runs_number = 1` and run:
+a single time to produce a series of non-parallelized runs indexed from 0 to 49 (optionally `python train.py $i` to start the indexing at `i`), or set, e.g., `runs_number = 1` and run:
 ```
 python train.py 0
 python train.py 1
 ...
 python train.py 49
 ```
-This way, the experiment can be parallelized over multiple GPUs.
+This way, the experiment can be parallelized over multiple GPUs. The output directories `state_dicts` and `outfiles` must be created before running the script.
 
-The training strategy is specified using the file `Pytorch/scheduler_pars.py`. By default, the `fixed_low` strategy is used.
+The training strategy is specified using the file `Pytorch/scheduler_pars.py`. By default, the `fixed_low` strategy is used. To use a different strategy, replace the `scheduler_pars.py` file with the one from the corresponding directory under `Pytorch/strategies/`.
+
+Efficiencies can be calculated using the script `Pytorch/calculate_efficiencies.py`. Options are set on lines 7-12, the output directory (`efficiencies` by default) must be created before running the script. Option on line 11 can be changed to `True` to use the softmax removal technique. By launching the script a single time as
+```
+python calculate_efficiencies.py
+```
+the efficiencies of all the runs specified in `Pytorch/pars.py` as `runs_number` are computed consecutively. Other options are to call
+```
+python calculate_efficiencies.py $i
+```
+to only calculate efficiencies of a single run with index `i`, or
+```
+python calculate_efficiencies.py $i $j
+```
+to calculate efficiencies of runs `i`, `i+1`, ..., `j-1`.
+
+They can then be plotted using the script `Pytorch/plot_efficiencies.py`. Options are set on lines 8-16, `runs_number` is specified separately from `Pytorch/pars.py` due to the option of parallelization. The variable `extra_plots` should only be changed if one is adding another subplot, which should then be implemented at the end of the script, just before `fig.savefig()` is called. The option `indices_filerow_plot` and `index_filecol` point to the lines containing the corresponding SNRs (commented lines are omitted!) and the column containing the desired FAP, respectively, in the efficiency files. The option `indices_filerow_eval` specifies which lines in the efficiency files are to be used to determine the "High", "Mean" and "Low" network states, whose indices are printed in `stdout` as well as saved in the `epoch_run_nums.txt` file. The resulting plot is then saved as `efficiency_plots.png`.
 
 ## 3 Generate test data
 

@@ -15,7 +15,9 @@ import torch
 import sys
 import os
 
-if len(sys.argv)==2:
+if len(sys.argv)==1:
+	indices_run = range(runs_number)
+elif len(sys.argv)==2:
 	indices_run = [int(sys.argv[1])]
 elif len(sys.argv)==3:
 	indices_run = range(int(sys.argv[1]), int(sys.argv[2]))

@@ -13,7 +13,7 @@ indices_filerow_eval = range(2, 30, 3)
 extra_plots = 0
 runs_number = 50
 
-epochs = 200
+epochs = epochs
 epoch_axis = range(1, epochs+1)
 
 omit_error = False
@@ -50,23 +50,10 @@ for infile in infiles:
 		if len(infile)!=first_length:
 			same_lengths = False
 
-# def extend(arrays, axis=0):
-# 	new_length = max([arr.shape[axis] for arr in arrays])
-# 	pad_widths = [[(0, 0) for _ in range(len(arr.shape))] for arr in arrays]
-# 	for i in range(len(pad_widths)):
-# 		pad_widths[i][axis] = (0, new_length-arrays[i].shape[axis])
-# 	pad_widths = [tuple(x) for x in pad_widths]
-# 	return [np.pad(arr, pad_width, mode='constant', constant_values=0.) for arr, pad_width in zip(arrays, pad_widths)]
-
 if same_lengths:
 	averages = sum(infiles)/len(infiles)
 else:
 	raise NotImplementedError
-	# counts = [np.ones_like(infile) for infile in infiles]
-	# counts = extend(counts, axis=0)
-	# padded_infiles = extend(infiles, axis=0)
-	# averages = sum(padded_infiles)/sum(counts)	# 2-dim np array: epoch x (epoch_num (risky), SNRs)
-
 
 best_epoch_zi = np.argmax(np.mean(averages[:, indices_filerow_eval], axis=1))	# zi = zero-indexed
 best_epoch_oi = epoch_axis[best_epoch_zi]	# oi = one-indexed
