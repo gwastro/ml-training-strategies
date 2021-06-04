@@ -186,6 +186,16 @@ The option `--remove-softmax` must be set in order to evaluate the sensitive dis
 
 ### 4.2 PyTorch
 
+To run a network over the sliced data call the script `Pytorch/test_network.py`. For a full list of options refer to `Pytorch/test_network.py -h`. A sample call to this function
+```
+python test_network.py \
+--model-file-path /path/to/state_dicts/fixed_low_high.pt \
+--input-dir ./TestData/sliced \
+--output-dir ./TestData/output \
+--verbose
+```
+Unlike the TensorFlow version, the usual way to store models in PyTorch only keeps the weights, while the layers are defined separately; thus, the `Pytorch/test_network.py` script explicitly contains the network definition and the option `--model-file-path` only specifies where the weights are stored. If one wishes to modify the network, it's necessary to also modify its definition in the test script, otherwise it will crash or produce incorrect results. Furthermore, the `--remove-softmax` option can be added, in which case the final Softmax is replaced by a subtraction layer to produce the ranking statistic $`x_0-x_1`$ as its first output component.
+
 ## 5 Evaluate the network
 
 To evaluate the output of the network call the script `evaluate_test_data.py`. It calculates triggers, clusters them into events and compares them to the injections to estimate false-alarm rates and corresponding sensitivities.
