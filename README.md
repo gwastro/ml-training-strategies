@@ -95,6 +95,21 @@ The above call to the script will train a single instance of the network describ
 
 To reproduce the results shown in [`[1]`](#publication) this script needs to be called 50 times for each of the 15 available run-keys.
 
+The script produces only the efficiencies with the final Softmax activation still in place. To generate the efficiencies for the unbounded Softmax replacement as well, call the script `Tensorflow/get_efficiency.py` in the following way
+```
+./Tensorflow/get_efficiency.py \
+--data-dir ./data \
+--base-dir Tensorflow/training_output \
+--model-name-format curriculum_{epoch}.hdf \
+--sort-by epoch \
+--use-dynamic-types \
+--output Tensorflow/training_output/linear_efficiencies.csv \
+--remove-softmax \
+--verbose
+```
+
+For the above call to work the training/validation/efficiency data must be stored in `./data` and named with the correct prefixes. Also all training output must be located at `Tensorflow/training_output`. The option `--remove-softmax` is responsible for the unbounded Softmax replacement modification. For a list of all options and a description see `./Tensorflow/get_efficiency.py -h`.
+
 ### 2.2 PyTorch
 
 To train a specific network call the script `Pytorch/train.py`. Output directories are set on lines 24 and 25 of the script, other parameters are set in the file `Pytorch/pars.py`. The script is set up to start a series of runs as in [`[1]`](#publication). The number of runs to be launched is specified on line 24 of `Pytorch/pars.py` and the index of the first run can be supplied as a command-line argument when launching `Pytorch/train.py`; if not supplied, it defaults to zero. To launch a set of 50 runs, one can either set `runs_number = 50` in `Pytorch/pars.py` and run:

@@ -1,0 +1,2 @@
+class Signal(object):
+    pass
