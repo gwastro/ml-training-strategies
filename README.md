@@ -194,7 +194,7 @@ python test_network.py \
 --output-dir ./TestData/output \
 --verbose
 ```
-Unlike the TensorFlow version, the usual way to store models in PyTorch only keeps the weights, while the layers are defined separately; thus, the `Pytorch/test_network.py` script explicitly contains the network definition and the option `--model-file-path` only specifies where the weights are stored. If one wishes to modify the network, it's necessary to also modify its definition in the test script, otherwise it will crash or produce incorrect results. Furthermore, the `--remove-softmax` option can be added, in which case the final Softmax is replaced by a subtraction layer to produce the ranking statistic $`x_0-x_1`$ as its first output component.
+Unlike the TensorFlow version, the usual way to store models in PyTorch only keeps the weights, while the layers are defined separately; thus, the `Pytorch/test_network.py` script explicitly contains the network definition and the option `--model-file-path` only specifies where the weights are stored. If one wishes to modify the network, it's necessary to also modify its definition in the test script, otherwise it will crash or produce incorrect results. Furthermore, the `--remove-softmax` option can be added, in which case the final Softmax is replaced by a subtraction layer to produce the ranking statistic *x<sub>0</sub>-x<sub>1</sub>* as its first output component.
 
 ## 5 Evaluate the network
 
