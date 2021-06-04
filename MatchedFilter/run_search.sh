@@ -33,11 +33,7 @@ pycbc_inspiral \
 --keep-loudest-num 100 \
 --keep-loudest-log-chirp-window 0.4 \
 \
---psd-estimation median \
---psd-segment-length 16 \
---psd-segment-stride 8 \
---psd-inverse-length 16 \
---psd-num-segments 63 \
+--psd-model aLIGOZeroDetHighPower \
 \
 --segment-length 512 \
 --segment-start-pad 80 \
