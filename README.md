@@ -300,9 +300,11 @@ The formats of the files are explained above and can be directly compared to the
 
 ### PyTorch
 
+The experiments were run using `torch` version 1.8.1. Other required packages are `numpy` (version 1.19.5 was used) and `h5py` (version 2.10.0 was used). Compatibility with other versions is not guaranteed.
+
 ## Acknowledgments
 
-Put acknowledgments here.
+We acknowledge the Max Planck Gesellschaft and the Atlas cluster computing team at Albert-Einstein Institut (AEI) Hannover for support, as well as the ARA cluster team at the URZ Jena. F.O. was supported by the Max Planck Society's Independent Research Group Programme. O.Z. thanks the Carl Zeiss Foundation for the financial support within the scope of the program line "Breakthroughs".
 
 ## References
 <a name="publication"></a>`[1]`: [Training Strategies for Deep Learning Gravitational-Wave Searches](https://arxiv.org)<br>
