@@ -6,8 +6,8 @@ import numpy as np
 from tensorflow import keras
 from generator import get_generator
 from reg_loss import reg_loss
-from BnsLib.utils import inverse_string_format
-from BnsLib.network.callbacks import SensitivityEstimator
+from bnslib_funcs import inverse_string_format
+from bnslib_funcs import SensitivityEstimator
 
 def get_model_paths(base_dir, model_names=None, name_format=['{}'],
                     sort_by=None, dynamic_types=True):

@@ -1,4 +1,4 @@
-from BnsLib.network.generators import FileHandler, MultiFileHandler, FileGenerator
+from bnslib_funcs import FileHandler, MultiFileHandler, FileGenerator
 import h5py
 import numpy as np
 import os

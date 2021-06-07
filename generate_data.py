@@ -1,7 +1,8 @@
-from BnsLib.data.generate_train import WaveformGetter, WhiteNoiseGenerator, NoiseGenerator
-from BnsLib.data.transform import whiten, optimal_snr
-from BnsLib.types.utils import NamedPSDCache
-from BnsLib.utils import progress_tracker
+#!/usr/bin/env python
+from bnslib import WaveformGetter, WhiteNoiseGenerator, NoiseGenerator
+from bnslib import whiten, optimal_snr
+from bnslib import NamedPSDCache
+from bnslib import progress_tracker
 from pycbc.filter import sigma
 from pycbc.psd import aLIGOZeroDetHighPower as aPSD
 import numpy as np

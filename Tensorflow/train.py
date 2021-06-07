@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 from tensorflow import keras
-from .model import get_model
-from .generator import get_generator
+from model import get_model
+from generator import get_generator
 import argparse
-from .callbacks import get_callbacks
-from .reg_loss import reg_loss
+from callbacks import get_callbacks
+from reg_loss import reg_loss
 import os
 
 def main():

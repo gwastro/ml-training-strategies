@@ -11,8 +11,8 @@ import logging
 from pycbc.types import TimeSeries
 
 #BnsLib imports
-from BnsLib.testing import *
-from BnsLib.utils import progress_tracker
+from bnslib import *
+from bnslib import progress_tracker
 
 SEC_PER_MONTH = 30 * 24 * 60 * 60
 

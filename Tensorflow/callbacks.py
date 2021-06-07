@@ -1,8 +1,8 @@
 from tensorflow import keras
 import numpy as np
-from BnsLib.network.callbacks import SnrCurriculumLearningScheduler
-from BnsLib.network.callbacks import SnrPlateauScheduler
-from BnsLib.network.callbacks import SensitivityEstimator
+from bnslib_funcs import SnrCurriculumLearningScheduler
+from bnslib_funcs import SnrPlateauScheduler
+from bnslib_funcs import SensitivityEstimator
 import os
 
 standard_start = [90., 100.]

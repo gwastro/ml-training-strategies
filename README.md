@@ -9,18 +9,18 @@ Marlin B. Schäfer<sup>1, 2</sup>, Ondřej Zelenka<sup>3, 4</sup>, Alexander H. 
 
 ## Introduction
 
-Put abstract here
+Compact binary systems emit gravitational radiation which is potentially detectable by current Earth bound detectors. Extracting these signals from the instruments' background noise is a complex problem and the computational cost of most current searches depends on the complexity of the source model. Deep learning may be capable of finding signals where current algorithms hit computational limits. Here we restrict our analysis to signals from non-spinning binary black holes and systematically test different strategies by which training data is presented to the networks. To assess the impact of the training strategies, we re-analyze the first published networks and directly compare them to an equivalent matched-filter search. We find that the deep learning algorithms can generalize low signal-to-noise ratio (SNR) signals to high SNR ones but not vice versa. As such, it is not beneficial to provide high SNR signals during training, and fastest convergence is achieved when low SNR samples are provided early on. During testing we found that the networks are sometimes unable to recover any signals when a false alarm probability <10^-3 is required. We resolve this restriction by applying a modification we call unbounded Softmax replacement (USR) after training. With this alteration we find that the machine learning search retains >= 97.5% of the sensitivity of the matched-filter search down to a false-alarm rate of 1 per month.
 
 ## Contents of this repository
 
-This repository contains the code required to reproduce the analysis presented in [`[1]`](#publication). It is split into two parts, which can be found in the separate directories `Tensorflow` and `PyTorch`. It contains scripts to generate the training, validation and test data and scripts to analyze the efficiency and sensitive volume of the networks. All final results and plots we used for the publication can be found in the `Results` folder.
-The repository also includes a copy of the BnsLib [`[2]`](#bnslib)
+This repository contains the code required to reproduce the analysis presented in [`[1]`](#publication). It is split into two parts, which can be found in the separate directories `Tensorflow` and `Pytorch`. It contains scripts to generate the training, validation and test data and scripts to analyze the efficiency and sensitive volume of the networks. All final results and plots we used for the publication can be found in the `Results` folder.
+The repository also includes parts of the BnsLib [`[2]`](#bnslib)
 
 Below we provide a step-by-step guide on how to reproduce our analysis.
 
 ## 1 Generate data required for training
 
-Call the script `generate_data.py` to generate 3 sets of data; a training set, a validation set and a data set used to determine the efficiencies during training.
+Call the script `generate_data.py` to generate 3 sets of data; a training set, a validation set and a data set used to determine the efficiencies during training (efficiency set).
 The script has many options which can be viewed by calling `./generate_data.py -h`. Below we list the options we used to create our datasets. Note, that the prefixes `train`, `val` and `thr` are important for the rest of the code.
 
 <b>Training set:</b>
@@ -147,7 +147,7 @@ They can then be plotted using the script `Pytorch/plot_efficiencies.py`. Option
 
 Code to generate the test data is located in the directory `TestData`.
 To generate test data we make use of the pycbc.workflow module. This is not strictly required but makes it easy to generate large datasets on a compute-cluster.
-If you want to use the workflow, adjust the file `wf.ini` and `wrun.sh` by inserting full from which to load scripts and store data, where indicated.
+If you want to use the workflow, adjust the file `wf.ini` and `wrun.sh` by inserting full paths from which to load scripts and store data, where indicated.
 
 To manually create long stretches of test data, follow these steps:
 1. Generate an injection file. To do so run
@@ -189,7 +189,7 @@ The parameters `<start-time>` and `<end-time>` have to be integers. If you analy
 To run a network over the sliced data call the script `Tensorflow/test_network.py`. For a full list of options refer to `Tensorflow/test_network.py -h`. A sample call to this function is
 ```
 ./Tensorflow/test_network.py \
---network ./Tensorflow/training_output/curriculum_0.hf5 \
+--network ./Tensorflow/training_output/curriculum_1.hf5 \
 --input-dir ./TestData/sliced \
 --output-dir ./TestData/output \
 --remove-softmax \
@@ -197,7 +197,7 @@ To run a network over the sliced data call the script `Tensorflow/test_network.p
 --verbose \
 --create-dirs
 ```
-The option `--remove-softmax` must be set in order to evaluate the sensitive distance for the network both with and without the final Softmax activation. Otherwise, it is only possible to evaluate the sensitive distance for the network with the final Softmax activation.
+This call uses the first epoch that finished training to evaluate the data. To use a different epoch adjust `<epoch>` in `--network ./Tensorflow/training_output/curriculum_<epoch>.hf5`. to the desired epoch. The option `--remove-softmax` must be set in order to evaluate the sensitive distance for the network both with and without the final Softmax activation. Otherwise, it is only possible to evaluate the sensitive distance for the network with the final Softmax activation.
 
 ### 4.2 PyTorch
 
@@ -247,8 +247,8 @@ To reproduce the results after removing the final activation call
 --verbose
 ```
 
-The scripts will create 3 files each. Each of them is a HDF5 file. The first file contains information about times at which the output of the network exceeds some threshold value. The times are given in the `data` group, the corresponding network output in the `trigger_values` group. The second file contains the events. The times of the events are given in the `times` group, the corresponding ranking statistic in the `values` group. The last file contains the actual statistics. It consists of 6 groups. The groups contain the following information
-| Group        | Content                                                         |
+The scripts will create 3 files each. Each of them is a HDF5 file. The first file (`triggers_<x>.hdf`) contains information about times at which the output of the network exceeds some threshold value. The times are given in the `data` group, the corresponding network output in the `trigger_values` group. The second file (`events_<x>.hdf`) contains the events. The times of the events are given in the `times` group, the corresponding ranking statistic in the `values` group. The last file(`stats_<x>.hdf`) contains the actual statistics. It consists of 6 datasets. The datasets contain the following information
+| Dataset      | Content                                                         |
 |--------------|-----------------------------------------------------------------|
 | ranking      | The ranking statistic corresponding to a given false-alarm rate |
 | far          | The false-alarm rates                                           |
@@ -261,7 +261,7 @@ The scripts will create 3 files each. Each of them is a HDF5 file. The first fil
 
 To construct the matched filter comparison a template bank is required. We include the bank file used in our analysis as `MatchedFilter/template_bank.hdf`. You can construct your own by running `./MatchedFilter/gen_template_bank.sh`.
 
-To run the search you can call the script `MatchedFilter/run_search.sh`. The script expects two positional arguments. The first must be the `<start-time>-80`, where `<start-time>` is the time at which analysis should begin. The second must be `<end-time>+16`, where `<end-time>` is the time at which to stop the analysis. Due to memory constraints it is infeasible to analyze the entire month of data at once. We chose a block size of 4096 seconds and thus called the script 633 times. Note that the analysis block must be larger then 512 seconds. To analyze the segment from 0 to 4096 seconds the call to the script would be
+To run the search you can call the script `MatchedFilter/run_search.sh`. The script expects two positional arguments. The first must be the `<start-time> - 80`, where `<start-time>` is the time at which analysis should begin. The second must be `<end-time> + 16`, where `<end-time>` is the time at which to stop the analysis. Due to memory constraints it is infeasible to analyze the entire month of data at once. We chose a block size of 4096 seconds and thus called the script 633 times. Note that the analysis block must be larger then 512 seconds. To analyze the segment from 0 to 4096 seconds the call to the script would be
 ```
 ./MatchedFilter/run_search.sh -80 4112
 ```
@@ -296,11 +296,14 @@ The formats of the files are explained above and can be directly compared to the
 
 ## Requirements
 
-### Tensorflow
+To run the code you need to install the following packages and their requirements
 
-### PyTorch
-
-The experiments were run using `torch` version 1.8.1. Other required packages are `numpy` (version 1.19.5 was used) and `h5py` (version 2.10.0 was used). Compatibility with other versions is not guaranteed.
+```
+lalsuite 6.75
+pycbc 1.18.0
+tensorflow 2.3.0
+torch 1.8.1
+```
 
 ## Acknowledgments
 

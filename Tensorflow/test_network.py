@@ -4,7 +4,7 @@ from tensorflow import keras
 import numpy as np
 import h5py
 import os
-from .reg_loss import reg_loss
+from reg_loss import reg_loss
 import logging
 import sys
 
