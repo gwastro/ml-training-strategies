@@ -7,6 +7,24 @@ Marlin B. Schäfer<sup>1, 2</sup>, Ondřej Zelenka<sup>3, 4</sup>, Alexander H. 
 <sub>3. Friedrich-Schiller-Universität Jena, D-07743 Jena, Germany</sub><br>
 <sub>4. Michael Stifel Center Jena, D-07743 Jena, Germany</sub>
 
+## Table of contents
+
+ * [Introduction](#Introduction)
+ * [Contents of this repository](<#Contents of this repository>)
+ * [Generate data required for training](<#1 Generate data required for training>)
+ * [Train the networks](<#2 Train the networks>)
+   * [Tensorflow](<#2.1 Tensorflow>)
+   * [Pytorch](<#2.2 Pytorch>)
+ * [Generate test data](<#3 Generate test data>)
+ * [Apply the network to test data](<#4 Apply the network to test data>)
+   * [Tensorflow](<#4.1 Tensorflow>)
+   * [Pytorch](<#4.2 Pytorch>)
+ * [Evaluate the network](<#5 Evaluate the network>)
+ * [Matched filter](<#Matched filter>)
+ * [Requirements](<#Requirements>)
+ * [Acknowledgments](<#Acknowledgments>)
+ * [References](<#References>)
+
 ## Introduction
 
 Compact binary systems emit gravitational radiation which is potentially detectable by current Earth bound detectors. Extracting these signals from the instruments' background noise is a complex problem and the computational cost of most current searches depends on the complexity of the source model. Deep learning may be capable of finding signals where current algorithms hit computational limits. Here we restrict our analysis to signals from non-spinning binary black holes and systematically test different strategies by which training data is presented to the networks. To assess the impact of the training strategies, we re-analyze the first published networks and directly compare them to an equivalent matched-filter search. We find that the deep learning algorithms can generalize low signal-to-noise ratio (SNR) signals to high SNR ones but not vice versa. As such, it is not beneficial to provide high SNR signals during training, and fastest convergence is achieved when low SNR samples are provided early on. During testing we found that the networks are sometimes unable to recover any signals when a false alarm probability <10^-3 is required. We resolve this restriction by applying a modification we call unbounded Softmax replacement (USR) after training. With this alteration we find that the machine learning search retains >= 97.5% of the sensitivity of the matched-filter search down to a false-alarm rate of 1 per month.
@@ -110,7 +128,7 @@ The script produces only the efficiencies with the final Softmax activation stil
 
 For the above call to work the training/validation/efficiency data must be stored in `./data` and named with the correct prefixes. Also all training output must be located at `Tensorflow/training_output`. The option `--remove-softmax` is responsible for the unbounded Softmax replacement modification. For a list of all options and a description see `./Tensorflow/get_efficiency.py -h`.
 
-### 2.2 PyTorch
+### 2.2 Pytorch
 
 To train a specific network call the script `Pytorch/train.py`. Output directories are set on lines 24 and 25 of the script, other parameters are set in the file `Pytorch/pars.py`. The script is set up to start a series of runs as in [`[1]`](#publication). The number of runs to be launched is specified on line 24 of `Pytorch/pars.py` and the index of the first run can be supplied as a command-line argument when launching `Pytorch/train.py`; if not supplied, it defaults to zero. To launch a set of 50 runs, one can either set `runs_number = 50` in `Pytorch/pars.py` and run:
 ```
@@ -199,7 +217,7 @@ To run a network over the sliced data call the script `Tensorflow/test_network.p
 ```
 This call uses the first epoch that finished training to evaluate the data. To use a different epoch adjust `<epoch>` in `--network ./Tensorflow/training_output/curriculum_<epoch>.hf5`. to the desired epoch. The option `--remove-softmax` must be set in order to evaluate the sensitive distance for the network both with and without the final Softmax activation. Otherwise, it is only possible to evaluate the sensitive distance for the network with the final Softmax activation.
 
-### 4.2 PyTorch
+### 4.2 Pytorch
 
 To run a network over the sliced data call the script `Pytorch/test_network.py`. For a full list of options refer to `Pytorch/test_network.py -h`. A sample call to this function
 ```
