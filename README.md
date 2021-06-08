@@ -22,6 +22,7 @@ Marlin B. Schäfer<sup>1, 2</sup>, Ondřej Zelenka<sup>3, 4</sup>, Alexander H. 
  * [Evaluate the network](#5-Evaluate-the-network)
  * [Matched filter](#Matched-filter)
  * [Requirements](#Requirements)
+ * [Citation](#Citation)
  * [Acknowledgments](#Acknowledgments)
  * [References](#References)
 
@@ -321,6 +322,20 @@ lalsuite 6.75
 pycbc 1.18.0
 tensorflow 2.3.0
 torch 1.8.1
+```
+
+## Citation
+
+If you use any of the material here, please cite the paper as
+```
+@misc{schaefer2021training,
+      title={Training Strategies for Deep Learning Gravitational-Wave Searches}, 
+      author={Marlin B. Schäfer and Ondřej Zelenka and Alexander H. Nitz and Frank Ohme and Bernd Brügmann},
+      year={2021},
+      eprint={2106.03741},
+      archivePrefix={arXiv},
+      primaryClass={astro-ph.IM}
+}
 ```
 
 ## Acknowledgments
