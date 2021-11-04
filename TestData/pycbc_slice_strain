@@ -98,7 +98,7 @@ def main():
         for ifo in dets:
             if opts.whiten_psd is not None and ifo in opts.whiten_psd:
                 psd_cache[ifo] = NamedPSDCache(psd_names=opts.whiten_psd[ifo])
-            if opts.fake_strain is not None and ifo in opts.fake_strain:
+            elif opts.fake_strain is not None and ifo in opts.fake_strain:
                 psd_cache[ifo] = NamedPSDCache(psd_names=opts.fake_strain[ifo])
             else:
                 psd_cache[ifo] = NamedPSDCache(psd_names='aLIGOZeroDetHighPower')
