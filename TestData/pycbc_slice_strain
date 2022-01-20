@@ -1,12 +1,17 @@
 #!/usr/bin/env python
+import os
+import sys
+parent_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0], '..')
+sys.path.append(parent_dir)
 import argparse
 import numpy as np
 from pycbc import DYN_RANGE_FAC
 import pycbc.strain
-from pycbc.types import TimeSeries
+from pycbc.types import TimeSeries, MultiDetOptionAction
 import h5py
-from BnsLib.data import whiten
-from BnsLib.types import NamedPSDCache
+from bnslib import whiten, NamedPSDCache
+# from BnsLib.data import whiten
+# from BnsLib.types import NamedPSDCache
 
 def main():
     parser = argparse.ArgumentParser()
@@ -43,6 +48,11 @@ def main():
                         help="Pad the end of the data with zeros. (in seconds) Default: 4")
     parser.add_argument('--whiten', action='store_true',
                         help="Whiten the sliced data.")
+    parser.add_argument('--whiten-psd', type=str, nargs='+',
+                        action=MultiDetOptionAction,
+                        help=("Path to a file containing the PSD that "
+                              "should be used for whitening. May also "
+                              "be a name of a PSD known to PyCBC."))
     
     pycbc.strain.insert_strain_option_group_multi_ifo(parser)
     
@@ -86,7 +96,9 @@ def main():
     if opts.whiten:
         psd_cache = {}
         for ifo in dets:
-            if opts.fake_strain is not None and ifo in opts.fake_strain:
+            if opts.whiten_psd is not None and ifo in opts.whiten_psd:
+                psd_cache[ifo] = NamedPSDCache(psd_names=opts.whiten_psd[ifo])
+            elif opts.fake_strain is not None and ifo in opts.fake_strain:
                 psd_cache[ifo] = NamedPSDCache(psd_names=opts.fake_strain[ifo])
             else:
                 psd_cache[ifo] = NamedPSDCache(psd_names='aLIGOZeroDetHighPower')
