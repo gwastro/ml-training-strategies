@@ -6,7 +6,7 @@ import numpy as np
 import os
 import logging
 
-from BnsLib.utils import inverse_string_format, progress_tracker
+from bnslib import inverse_string_format, progress_tracker
 
 def main():
     parser = ArgumentParser()
