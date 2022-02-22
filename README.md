@@ -328,13 +328,18 @@ torch 1.8.1
 
 If you use any of the material here, please cite the paper as
 ```
-@misc{schaefer2021training,
-      title={Training Strategies for Deep Learning Gravitational-Wave Searches}, 
-      author={Marlin B. Schäfer and Ondřej Zelenka and Alexander H. Nitz and Frank Ohme and Bernd Brügmann},
-      year={2021},
-      eprint={2106.03741},
-      archivePrefix={arXiv},
-      primaryClass={astro-ph.IM}
+@article{Schafer:2021fea,
+    author = {Sch\"afer, Marlin B. and Zelenka, Ond\v{r}ej and Nitz, Alexander H. and Ohme, Frank and Br\"ugmann, Bernd},
+    title = "{Training strategies for deep learning gravitational-wave searches}",
+    eprint = "2106.03741",
+    archivePrefix = "arXiv",
+    primaryClass = "astro-ph.IM",
+    doi = "10.1103/PhysRevD.105.043002",
+    journal = "Phys. Rev. D",
+    volume = "105",
+    number = "4",
+    pages = "043002",
+    year = "2022"
 }
 ```
 
@@ -343,5 +348,5 @@ If you use any of the material here, please cite the paper as
 We acknowledge the Max Planck Gesellschaft and the Atlas cluster computing team at Albert-Einstein Institut (AEI) Hannover for support, as well as the ARA cluster team at the URZ Jena. F.O. was supported by the Max Planck Society's Independent Research Group Programme. O.Z. thanks the Carl Zeiss Foundation for the financial support within the scope of the program line "Breakthroughs".
 
 ## References
-<a name="publication"></a>`[1]`: [Training Strategies for Deep Learning Gravitational-Wave Searches](https://arxiv.org)<br>
+<a name="publication"></a>`[1]`: [Training Strategies for Deep Learning Gravitational-Wave Searches](https://doi.org/10.1103/PhysRevD.105.043002)<br>
 <a name="bnslib"></a>`[2]`: [BnsLib](https://github.com/MarlinSchaefer/BnsLib)
